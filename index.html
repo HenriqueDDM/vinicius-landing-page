@@ -382,7 +382,7 @@ function renderSidebar(){
     const n=state.trips.filter(tr=>tr.truckId===t.id).length;
     return `<div class="truck-item ${selectedTruck===t.id?'active':''}" onclick="selectTruck('${t.id}')">
       <div><div class="truck-plate">${t.plate}</div><div class="truck-name">${t.model||t.driver||'—'}</div></div>
-      ${n?<span class="truck-badge">${n}</span>:''}
+      ${n?`<span class="truck-badge">${n}</span>`:''}
     </div>`;
   }).join('');
 }
@@ -403,7 +403,7 @@ function renderMain(){
   const byM={};
   trips.forEach(tr=>{
     const d=new Date((tr.date||'2000-01-01')+'T12:00:00');
-    const k=${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')};
+    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
     if(!byM[k]) byM[k]=[];
     byM[k].push(tr);
   });
@@ -431,7 +431,7 @@ function renderMain(){
   </div>`;
 
   if(!months.length){
-    html+=<div class="empty-state"><div class="empty-icon">📋</div><h3>Sem Viagens</h3><p>Nenhuma viagem registrada.</p></div>;
+    html+=`<div class="empty-state"><div class="empty-icon">📋</div><h3>Sem Viagens</h3><p>Nenhuma viagem registrada.</p></div>`;
   } else {
     months.forEach(mk=>{
       const mTrips=byM[mk].sort((a,b)=>b.date.localeCompare(a.date));
@@ -459,12 +459,12 @@ function renderMain(){
         html+=`<div class="trip-card">
           <div class="trip-header" onclick="toggleTrip('${tr.id}')">
             <span class="trip-date">${fmtD(tr.date)}</span>
-            <span class="trip-route">${tr.origin||'—'} <span class="route-arrow">→</span> ${tr.dest||'—'}${tr.cargo?<span class="cargo-tag">${tr.cargo}</span>:''}</span>
+            <span class="trip-route">${tr.origin||'—'} <span class="route-arrow">→</span> ${tr.dest||'—'}${tr.cargo?`<span class="cargo-tag">${tr.cargo}</span>`:''}</span>
             <div class="trip-nums">
               <span class="val pos">R$ ${fmt(f)}</span>
               <span class="val neg">- R$ ${fmt(d)}</span>
               <span class="val ${l>=0?'pos':'neg'}">${l>=0?'=':''} R$ ${fmt(l)}</span>
-              ${tr.km?<span style="color:var(--muted);font-size:.7rem">${parseInt(tr.km).toLocaleString('pt-BR')}km</span>:''}
+              ${tr.km?`<span style="color:var(--muted);font-size:.7rem">${parseInt(tr.km).toLocaleString('pt-BR')}km</span>`:''}
             </div>
             <span class="status-badge ${sc}">${sl}</span>
             <div class="trip-actions">
@@ -475,7 +475,7 @@ function renderMain(){
           <div class="trip-detail" id="detail_${tr.id}">${buildDetail(tr)}</div>
         </div>`;
       });
-      html+=</div></div>;
+      html+=`</div></div>`;
     });
   }
   main.innerHTML=html;
@@ -487,19 +487,19 @@ function buildDetail(tr){
   const kmIni=parseFloat(tr.fuelKmInicial||0), kmFin=parseFloat(tr.fuelKmFinal||0), kmPerc=kmFin>kmIni?kmFin-kmIni:0;
   const media=(totL>0&&kmPerc>0)?(kmPerc/totL).toFixed(2)+' km/L':'—';
 
-  let h=<div class="detail-grid">;
+  let h=`<div class="detail-grid">`;
 
   // CTEs
-  h+=<div class="detail-section"><div class="detail-section-hdr"><span class="detail-section-title">📄 CTes / Fretes</span><span class="detail-section-total val pos">R$ ${fmt(frete)}</span></div>;
+  h+=`<div class="detail-section"><div class="detail-section-hdr"><span class="detail-section-title">📄 CTes / Fretes</span><span class="detail-section-total val pos">R$ ${fmt(frete)}</span></div>`;
   if(tr.ctes&&tr.ctes.length){
-    h+=<div class="cte-list">;
-    tr.ctes.forEach(c=>{ h+=<div class="cte-row"><span class="cte-num">${c.num||'—'}</span><span class="cte-route-lbl">${c.origin||''}${c.dest?' → '+c.dest:''}</span><span class="cte-val">R$ ${fmt(c.valor)}</span></div>; });
-    h+=</div>;
-  } else h+=<div style="padding:.6rem;text-align:center;font-size:.72rem;color:var(--muted)">Nenhum CTE registrado</div>;
-  h+=</div>;
+    h+=`<div class="cte-list">`;
+    tr.ctes.forEach(c=>{ h+=`<div class="cte-row"><span class="cte-num">${c.num||'—'}</span><span class="cte-route-lbl">${c.origin||''}${c.dest?' → '+c.dest:''}</span><span class="cte-val">R$ ${fmt(c.valor)}</span></div>`; });
+    h+=`</div>`;
+  } else h+=`<div style="padding:.6rem;text-align:center;font-size:.72rem;color:var(--muted)">Nenhum CTE registrado</div>`;
+  h+=`</div>`;
 
   // Abastecimentos
-  h+=<div class="detail-section"><div class="detail-section-hdr"><span class="detail-section-title">⛽ Abastecimentos</span><span class="detail-section-total" style="color:var(--info)">R$ ${fmt(totFuelVal)} · ${totL.toLocaleString('pt-BR',{maximumFractionDigits:1})}L</span></div>;
+  h+=`<div class="detail-section"><div class="detail-section-hdr"><span class="detail-section-title">⛽ Abastecimentos</span><span class="detail-section-total" style="color:var(--info)">R$ ${fmt(totFuelVal)} · ${totL.toLocaleString('pt-BR',{maximumFractionDigits:1})}L</span></div>`;
   if(kmPerc>0){
     h+=`<div style="display:flex;gap:1.5rem;padding:.35rem .75rem;background:rgba(56,189,248,.05);border-bottom:1px solid rgba(255,255,255,.04);font-size:.72rem;font-family:'IBM Plex Mono',monospace">
       <span style="color:var(--muted)">KM Inicial: <strong style="color:var(--text)">${kmIni.toLocaleString('pt-BR')}</strong></span>
@@ -509,25 +509,25 @@ function buildDetail(tr){
     </div>`;
   }
   if(fuels.length){
-    h+=<table class="mini-table"><thead><tr><th>Data</th><th>Litros</th><th>Posto</th><th>Nota Fiscal</th><th>KM</th><th>Valor</th></tr></thead><tbody>;
-    fuels.forEach(f=>{ h+=<tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--accent);font-size:.7rem">${fmtD(f.data)}</td><td style="font-family:'IBM Plex Mono',monospace">${parseFloat(f.litros||0).toLocaleString('pt-BR',{maximumFractionDigits:2})}L</td><td style="color:var(--muted)">${f.posto||'—'}</td><td style="color:var(--muted);font-size:.7rem">${f.nf||'—'}</td><td style="font-family:'IBM Plex Mono',monospace;color:var(--muted)">${f.km?parseInt(f.km).toLocaleString('pt-BR')+'km':'—'}</td><td class="val neu">R$ ${fmt(f.valor)}</td></tr>; });
-    h+=<tr><td colspan="5" style="text-align:right;color:var(--muted);font-size:.68rem;padding:.3rem .75rem">${media!=='—'?'Média: '+media:''}</td><td class="val pos" style="padding:.3rem .75rem">R$ ${fmt(totFuelVal)}</td></tr>;
-    h+=</tbody></table>;
-  } else h+=<div style="padding:.6rem;text-align:center;font-size:.72rem;color:var(--muted)">Nenhum abastecimento</div>;
-  h+=</div></div>;
+    h+=`<table class="mini-table"><thead><tr><th>Data</th><th>Litros</th><th>Posto</th><th>Nota Fiscal</th><th>KM</th><th>Valor</th></tr></thead><tbody>`;
+    fuels.forEach(f=>{ h+=`<tr><td style="font-family:'IBM Plex Mono',monospace;color:var(--accent);font-size:.7rem">${fmtD(f.data)}</td><td style="font-family:'IBM Plex Mono',monospace">${parseFloat(f.litros||0).toLocaleString('pt-BR',{maximumFractionDigits:2})}L</td><td style="color:var(--muted)">${f.posto||'—'}</td><td style="color:var(--muted);font-size:.7rem">${f.nf||'—'}</td><td style="font-family:'IBM Plex Mono',monospace;color:var(--muted)">${f.km?parseInt(f.km).toLocaleString('pt-BR')+'km':'—'}</td><td class="val neu">R$ ${fmt(f.valor)}</td></tr>`; });
+    h+=`<tr><td colspan="5" style="text-align:right;color:var(--muted);font-size:.68rem;padding:.3rem .75rem">${media!=='—'?'Média: '+media:''}</td><td class="val pos" style="padding:.3rem .75rem">R$ ${fmt(totFuelVal)}</td></tr>`;
+    h+=`</tbody></table>`;
+  } else h+=`<div style="padding:.6rem;text-align:center;font-size:.72rem;color:var(--muted)">Nenhum abastecimento</div>`;
+  h+=`</div></div>`;
 
   // Despesas
-  h+=<div class="detail-section" style="grid-column:1/-1"><div class="detail-section-hdr"><span class="detail-section-title">💸 Despesas</span><span class="detail-section-total val neg">R$ ${fmt(despTotal)}</span></div><div class="desp-grid">;
-  DESP.forEach(dk=>{ const v=parseFloat((tr.despesas||{})[dk.k]||0); h+=<div class="desp-row"><span class="desp-label">${dk.l}</span><span class="desp-val ${v>0?'has-val':'zero'}">R$ ${fmt(v)}</span></div>; });
-  h+=</div></div>;
+  h+=`<div class="detail-section" style="grid-column:1/-1"><div class="detail-section-hdr"><span class="detail-section-title">💸 Despesas</span><span class="detail-section-total val neg">R$ ${fmt(despTotal)}</span></div><div class="desp-grid">`;
+  DESP.forEach(dk=>{ const v=parseFloat((tr.despesas||{})[dk.k]||0); h+=`<div class="desp-row"><span class="desp-label">${dk.l}</span><span class="desp-val ${v>0?'has-val':'zero'}">R$ ${fmt(v)}</span></div>`; });
+  h+=`</div></div>`;
 
   // Acerto
   h+=`<div class="acerto-box" style="grid-column:1/-1">
     <div class="acerto-line"><span class="al-label">Total Fretes (CTes)</span><span class="al-val" style="color:var(--success)">R$ ${fmt(frete)}</span></div>
     <div class="acerto-line"><span class="al-label">(-) Total Despesas</span><span class="al-val" style="color:var(--danger)">R$ ${fmt(despTotal)}</span></div>
-    ${tr.obs?<div class="acerto-line"><span class="al-label" style="font-size:.7rem;color:var(--muted)">Obs: ${tr.obs}</span></div>:''}
+    ${tr.obs?`<div class="acerto-line"><span class="al-label" style="font-size:.7rem;color:var(--muted)">Obs: ${tr.obs}</span></div>`:''}
     <div class="acerto-line"><span class="al-label">SALDO ACERTO MOTORISTA</span><span class="al-val" style="color:${saldo>=0?'var(--success)':'var(--danger)'}">R$ ${fmt(saldo)}</span></div>
-    ${adto>0?<div style="margin-top:.5rem;padding:.4rem .5rem;background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:5px;font-size:.72rem;display:flex;justify-content:space-between"><span style="color:var(--muted)">ℹ️ Adiantamento motorista (informativo)</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">R$ ${fmt(adto)}</span></div>:''}
+    ${adto>0?`<div style="margin-top:.5rem;padding:.4rem .5rem;background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:5px;font-size:.72rem;display:flex;justify-content:space-between"><span style="color:var(--muted)">ℹ️ Adiantamento motorista (informativo)</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">R$ ${fmt(adto)}</span></div>`:''}
   </div>`;
 
   return h;
@@ -649,7 +649,7 @@ function saveTruck(){
 // ===================== TRIP MODAL =====================
 function openTripModal(pre){
   const sel=document.getElementById('trpTruck');
-  sel.innerHTML=state.trucks.map(t=><option value="${t.id}">${t.plate}${t.model?' — '+t.model:''}</option>).join('');
+  sel.innerHTML=state.trucks.map(t=>`<option value="${t.id}">${t.plate}${t.model?' — '+t.model:''}</option>`).join('');
   if(pre) sel.value=pre; else if(selectedTruck) sel.value=selectedTruck;
   document.getElementById('trpDate').value=new Date().toISOString().split('T')[0];
   ['trpDateEnd','trpOrigin','trpDest','trpCargo','trpObs'].forEach(id=>document.getElementById(id).value='');
@@ -708,7 +708,7 @@ function saveTrip(){
 // ===================== DELETE =====================
 function confirmDeleteTruck(id){
   const t=state.trucks.find(x=>x.id===id);
-  document.getElementById('confirmMsg').textContent=Excluir caminhão ${t.plate} e todas as suas viagens?;
+  document.getElementById('confirmMsg').textContent=`Excluir caminhão ${t.plate} e todas as suas viagens?`;
   confirmAction=()=>{ state.trips=state.trips.filter(tr=>tr.truckId!==id); state.trucks=state.trucks.filter(tr=>tr.id!==id); if(selectedTruck===id) selectedTruck=state.trucks[0]?.id||null; save();renderSidebar();renderMain(); };
   document.getElementById('confirmOverlay').classList.add('open');
 }
